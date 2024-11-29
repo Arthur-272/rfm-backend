@@ -1,0 +1,27 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: rfm
+    ports:
+      - "3306:3306"
+    networks:
+      - my-network
+
+  app:
+    image: radheypatel272/rfm
+    container_name: RFM
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/rfm
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge

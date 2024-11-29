@@ -1,13 +1,11 @@
 package com.omnitrust.rfm.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 @Table(name = "users")
 @Entity
-@Getter
-@Setter
+@Data
 public class User {
 
     @Id
