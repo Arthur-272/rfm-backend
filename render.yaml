@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: rfm-app
+    env: docker
+    plan: starter
+    runtime: docker # Specify runtime for your Docker-based service
+    dockerfilePath: Dockerfile # Adjust if your app uses a specific Dockerfile
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://mysql-db:3306/rfm
+      - key: SPRING_DATASOURCE_USERNAME
+        value: root
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: root
+    ports:
+      - 8080
+
+  - type: database
+    name: mysql-db
+    plan: free
+    runtime: docker # Add runtime to validate schema
+    database: mysql
+    properties:
+      user: root
+      password: root
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        value: root
+      - key: MYSQL_DATABASE
+        value: rfm
