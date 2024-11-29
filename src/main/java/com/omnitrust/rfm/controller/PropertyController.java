@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/property")
-@CrossOrigin(origins = "*")
 public class PropertyController {
 
     @Autowired
@@ -49,6 +48,16 @@ public class PropertyController {
             return new ResponseEntity<>(property, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<?> getPropertyById(@RequestParam String id) {
+        try {
+            Property property = propertyService.findById(id);
+            return new ResponseEntity<>(property, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
