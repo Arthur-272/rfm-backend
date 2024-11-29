@@ -1,10 +1,3 @@
-databases:
-  - name: mysql-db
-    plan: free # or select a paid plan if needed
-    properties:
-      user: root
-      password: root
-      databaseName: rfm
 services:
   - type: web
     name: rfm-app
@@ -18,6 +11,11 @@ services:
         value: root
       - key: SPRING_DATASOURCE_PASSWORD
         value: root
-    ports:
-      - 8080
     runtime: docker
+
+  - type: database
+    name: mysql-db
+    plan: free
+    database: mysql
+    user: root
+    password: root
