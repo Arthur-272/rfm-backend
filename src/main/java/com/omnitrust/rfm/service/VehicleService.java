@@ -27,12 +27,12 @@ public class VehicleService {
     }
 
     public Map<String, Object> getVehicleByNumberPlate(String plate) {
-        if(plate == null) {
+        if (plate == null) {
             throw new NullPointerException("plate cannot be null");
         }
 
         Optional<Vehicle> vehicle = vehicleRepository.findByNumberPlate(plate);
-        if(vehicle.isPresent()) {
+        if (vehicle.isPresent()) {
             List<Property> properties = propertyService.findByAuthorizedVehicles(vehicle.get());
 
             Map<String, Object> result = new HashMap<>();
@@ -45,10 +45,26 @@ public class VehicleService {
     }
 
     public Vehicle addVehicle(Vehicle vehicle) {
-        if(vehicle == null) {
+        if (vehicle == null) {
             throw new IllegalArgumentException("vehicle is cannot be null");
         }
         vehicle = vehicleRepository.save(vehicle);
         return vehicle;
+    }
+
+    public Vehicle findById(String id) throws Exception {
+        Optional<Vehicle> vehicle = vehicleRepository.findById(id);
+        if (vehicle.isPresent()) {
+            return vehicle.get();
+        }
+        throw new IllegalArgumentException("No vehicle found with id: " + id);
+    }
+
+    public Vehicle findByIdAndNumberPlate(String id, String numberPlate) {
+        Optional<Vehicle> vehicle = vehicleRepository.findByIdAndNumberPlate(id, numberPlate);
+        if(vehicle.isPresent()) {
+            return vehicle.get();
+        }
+        throw new IllegalArgumentException("Vehicle with id: " + id + " and number plate: " + numberPlate + " not found");
     }
 }

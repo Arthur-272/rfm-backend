@@ -60,4 +60,24 @@ public class PropertyController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/delete")
+    public ResponseEntity<?> deletePropertyById(@RequestParam String id) {
+        try{
+            propertyService.deletePropertyById(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/remove-vehicle")
+    public ResponseEntity<?> removeVehicleFromAuthorizedList( @RequestBody PropertyVehicleRequest request) {
+        try{
+            propertyService.removeVehicleFromAuthorizedList(request);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

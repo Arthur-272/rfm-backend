@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface VehicleRepository extends CrudRepository<Vehicle, String> {
 
     Optional<Vehicle> findByNumberPlate(String plate);
+
+    Optional<Vehicle> findByIdAndNumberPlate(String id, String numberPlate);
 }

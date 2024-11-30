@@ -2,6 +2,7 @@ package com.omnitrust.rfm.service;
 
 import com.omnitrust.rfm.domain.Property;
 import com.omnitrust.rfm.domain.Vehicle;
+import com.omnitrust.rfm.dto.PropertyVehicleRequest;
 import com.omnitrust.rfm.repository.PropertyRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,5 +67,22 @@ public class PropertyService {
 
     public Property findById(String id) {
         return propertyRepository.findById(id).get();
+    }
+
+    public void deletePropertyById(String id) {
+        propertyRepository.deleteById(id);
+    }
+
+    public Property removeVehicleFromAuthorizedList(PropertyVehicleRequest request)throws Exception {
+        Property property = propertyRepository.findById(request.getProperty().getId()).get();
+        Vehicle vehicle = vehicleService.findByIdAndNumberPlate(request.getVehicle().getId(), request.getVehicle().getNumberPlate());
+        if(property == null) {
+            throw new IllegalArgumentException("Property not found");
+        }
+        if(property.getAuthorizedVehicles().contains(vehicle)) {
+            property.getAuthorizedVehicles().remove(vehicle);
+            return propertyRepository.save(property);
+        }
+        throw new IllegalArgumentException("Vehicle not found in property");
     }
 }
