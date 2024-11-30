@@ -21,7 +21,8 @@ public class PropertyService {
     @Autowired
     private PropertyRepository propertyRepository;
 
-    @Autowired AddressService addressService;
+    @Autowired
+    AddressService addressService;
 
     @Autowired
     @Lazy
@@ -33,10 +34,15 @@ public class PropertyService {
         return properties;
     }
 
+    public List<Property> getAllActive() {
+        return propertyRepository.findAllByIsActiveTrue();
+    }
+
     public Property add(Property property) {
-        if(addressService.getAddress(property.getAddress().getFullAddress()) == null) {
+        if (addressService.getAddress(property.getAddress().getFullAddress()) == null) {
             property.getAddress().setId(null);
             property.setId(null);
+            property.setIsActive(true);
             property.setAddress(addressService.saveAddress(property.getAddress()));
             property.setAuthorizedVehicles(new HashSet<>());
             return propertyRepository.save(property);
@@ -49,7 +55,7 @@ public class PropertyService {
         System.out.println();
         Optional<Property> propertyInDB = propertyRepository.findById(propertyToBeAddedIn.getId());
         Vehicle authorizedVehicle = vehicleService.addVehicle(vehicle);
-        if(authorizedVehicle != null){
+        if (authorizedVehicle != null) {
             if (propertyInDB.isPresent()) {
                 propertyInDB.get().getAuthorizedVehicles().add(authorizedVehicle);
             } else {
@@ -69,17 +75,23 @@ public class PropertyService {
         return propertyRepository.findById(id).get();
     }
 
-    public void deletePropertyById(String id) {
-        propertyRepository.deleteById(id);
-    }
-
-    public Property removeVehicleFromAuthorizedList(PropertyVehicleRequest request)throws Exception {
-        Property property = propertyRepository.findById(request.getProperty().getId()).get();
-        Vehicle vehicle = vehicleService.findByIdAndNumberPlate(request.getVehicle().getId(), request.getVehicle().getNumberPlate());
-        if(property == null) {
+    public void deletePropertyById(String id) throws Exception{
+        Optional<Property> property = propertyRepository.findById(id);
+        if (property.isPresent()) {
+            property.get().setIsActive(false);
+            propertyRepository.save(property.get());
+        } else {
             throw new IllegalArgumentException("Property not found");
         }
-        if(property.getAuthorizedVehicles().contains(vehicle)) {
+    }
+
+    public Property removeVehicleFromAuthorizedList(PropertyVehicleRequest request) throws Exception {
+        Property property = propertyRepository.findById(request.getProperty().getId()).get();
+        Vehicle vehicle = vehicleService.findByIdAndNumberPlate(request.getVehicle().getId(), request.getVehicle().getNumberPlate());
+        if (property == null) {
+            throw new IllegalArgumentException("Property not found");
+        }
+        if (property.getAuthorizedVehicles().contains(vehicle)) {
             property.getAuthorizedVehicles().remove(vehicle);
             return propertyRepository.save(property);
         }

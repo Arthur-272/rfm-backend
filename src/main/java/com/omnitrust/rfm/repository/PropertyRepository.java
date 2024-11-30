@@ -12,4 +12,6 @@ public interface PropertyRepository extends CrudRepository<Property, String> {
     List<Property> findAllByAuthorizedVehicles(List<Vehicle> authorizedVehicles);
 
     List<Property> findAllByAuthorizedVehiclesContaining(Vehicle vehicle);
+
+    List<Property> findAllByIsActiveTrue();
 }

@@ -13,6 +13,15 @@ public class User {
     private long uuid;
 
     @Column(unique = true, length = 100, nullable = false)
+    private String firstName;
+
+    @Column(unique = true, length = 100)
+    private String lastName;
+
+    @Column(unique = true, length = 100, nullable = false)
+    private String email;
+
+    @Column(unique = true, length = 100, nullable = false)
     private String username;
 
     @Column(length = 100, nullable = false)

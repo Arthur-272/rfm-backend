@@ -28,6 +28,9 @@ public class Property {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Address address;
 
+    @JsonView({Views.Summary.class, Views.Detailed.class})
+    private Boolean isActive;
+
     @ManyToMany
     @JsonView(Views.Detailed.class)
     private Set<Vehicle> authorizedVehicles;

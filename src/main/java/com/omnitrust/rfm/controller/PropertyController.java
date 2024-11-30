@@ -24,7 +24,7 @@ public class PropertyController {
     @GetMapping("/get/all")
     public ResponseEntity<?> getAllProperty() {
         try {
-            List<Property> properties = propertyService.getAll();
+            List<Property> properties = propertyService.getAllActive();
             return new ResponseEntity<>(properties, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
