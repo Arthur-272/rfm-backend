@@ -61,10 +61,10 @@ public class PropertyController {
         }
     }
 
-    @GetMapping("/delete")
-    public ResponseEntity<?> deletePropertyById(@RequestParam String id) {
+    @PostMapping("/delete")
+    public ResponseEntity<?> deletePropertyById(@RequestBody Property property) {
         try{
-            propertyService.deletePropertyById(id);
+            propertyService.deletePropertyById(property.getId());
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -72,7 +72,7 @@ public class PropertyController {
     }
 
     @PostMapping("/remove-vehicle")
-    public ResponseEntity<?> removeVehicleFromAuthorizedList( @RequestBody PropertyVehicleRequest request) {
+    public ResponseEntity<?> removeVehicleFromAuthorizedList(@RequestBody PropertyVehicleRequest request) {
         try{
             propertyService.removeVehicleFromAuthorizedList(request);
             return ResponseEntity.ok().build();
