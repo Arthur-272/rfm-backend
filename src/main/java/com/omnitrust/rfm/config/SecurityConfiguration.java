@@ -58,8 +58,8 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:4200/"));
-//        configuration.setAllowedOrigins(Collections.singletonList("https://jade-frangipane-4a45a2.netlify.app"));
+//        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:4200/"));
+        configuration.setAllowedOrigins(Collections.singletonList("https://jade-frangipane-4a45a2.netlify.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setExposedHeaders(Collections.singletonList("Authorization"));
