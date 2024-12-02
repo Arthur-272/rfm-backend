@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -46,13 +47,24 @@ public class ReleaseService {
             if (vehicle != null) {
                 if (catchService.isVehicleBooted(vehicle)) {
                     if (vehicle.getNumberPlate() != null) {
+
+                        if(releaseInfo.getTimestamp() != null) {
+                            Date date = Timestamp.valueOf(releaseInfo.getTimestamp().toLocalDateTime());
+                            releaseInfo.setTimestamp(Timestamp.valueOf(date.toString()));
+                        }
+
+
                         releaseInfo
                                 .setVehicle(vehicle)
-                                .setTimestamp(Timestamp.valueOf(LocalDateTime.now()))
                                 .setUser(userService.getCurrentUser())
                                 .setProperty(property);
-                        releaseInfo = releaseRepository.save(releaseInfo);
                         CatchInfo catchInfo = catchService.getCatchInfoForReleaseByNumberPlate(releaseInfo.getVehicle().getNumberPlate());
+                        releaseInfo = releaseRepository.save(releaseInfo);
+
+                        if(releaseInfo.getTimestamp().before(catchInfo.getTimestamp())) {
+                            throw new IllegalArgumentException("Release date cannot be before catch date");
+                        }
+
                         catchInfo.setReleaseInfo(releaseInfo);
                         catchService.updateCatch(catchInfo);
                         return releaseInfo;

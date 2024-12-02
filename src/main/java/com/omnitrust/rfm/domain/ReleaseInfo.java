@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 
@@ -27,6 +26,5 @@ public class ReleaseInfo {
     @ManyToOne
     private User user;
 
-    @CreationTimestamp
     private Timestamp timestamp;
 }

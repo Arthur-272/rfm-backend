@@ -52,7 +52,6 @@ public class PropertyService {
     }
 
     public Property addVehicleToProperty(Property propertyToBeAddedIn, Vehicle vehicle) {
-        System.out.println();
         Optional<Property> propertyInDB = propertyRepository.findById(propertyToBeAddedIn.getId());
         Vehicle authorizedVehicle = vehicleService.addVehicle(vehicle);
         if (authorizedVehicle != null) {

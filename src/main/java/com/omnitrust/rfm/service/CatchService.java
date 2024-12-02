@@ -2,6 +2,7 @@ package com.omnitrust.rfm.service;
 
 import com.omnitrust.rfm.domain.CatchInfo;
 import com.omnitrust.rfm.domain.Property;
+import com.omnitrust.rfm.domain.User;
 import com.omnitrust.rfm.domain.Vehicle;
 import com.omnitrust.rfm.repository.CatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +36,6 @@ public class CatchService {
 
 
     public CatchInfo addCatch(CatchInfo catch_Info) {
-
         Property property = propertyService.findById(catch_Info.getProperty().getId());
         if(property == null) {
             throw new IllegalArgumentException("Property not found");
@@ -54,12 +55,18 @@ public class CatchService {
         if(vehicle == null) {
             vehicle = vehicleService.addVehicle(catch_Info.getVehicle());
         }
+
+        if(catch_Info.getTimestamp() != null) {
+            Date date = Timestamp.valueOf(catch_Info.getTimestamp().toLocalDateTime());
+            catch_Info.setTimestamp(Timestamp.valueOf(date.toString()));
+        }
+
+
         catch_Info
                 .setVehicle(vehicle)
                 .setReleaseInfo(null)
                 .setProperty(property)
-                .setUser(userService.getCurrentUser())
-                .setTimestamp(new Timestamp(System.currentTimeMillis()));
+                .setUser(userService.getCurrentUser());
 
         return catchRepository.save(catch_Info);
     }
@@ -111,5 +118,18 @@ public class CatchService {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
         return catchRepository.findCatchInfoByTimestampBetweenAndReleaseInfoIsNotNull(Timestamp.valueOf(startOfDay), Timestamp.valueOf(endOfDay));
+    }
+
+    public List<CatchInfo> getAllCatchForDayWithReleaseInfoNotNull(LocalDate reportDate) {
+        LocalDateTime startOfDay = reportDate.atStartOfDay();
+        LocalDateTime endOfDay = reportDate.atTime(LocalTime.MAX);
+        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetween(Timestamp.valueOf(startOfDay), Timestamp.valueOf(endOfDay));
+    }
+
+    public List<CatchInfo> getAllCatchForDayWithReleaseInfoNotNullByUser(LocalDate reportDate) {
+        LocalDateTime startOfDay = reportDate.atStartOfDay();
+        LocalDateTime endOfDay = reportDate.atTime(LocalTime.MAX);
+        User currentUser = userService.getCurrentUser();
+        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetweenAndUserOrReleaseInfo_User(Timestamp.valueOf(startOfDay), Timestamp.valueOf(endOfDay), currentUser);
     }
 }

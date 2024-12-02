@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 
@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Accessors(chain = true)
+@ToString
 public class CatchInfo {
 
     @Id
@@ -31,8 +32,6 @@ public class CatchInfo {
     @NonNull
     private User user;
 
-    @CreationTimestamp
-    @NonNull
     private Timestamp timestamp;
 
     @OneToOne
