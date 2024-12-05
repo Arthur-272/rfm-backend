@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -121,15 +119,19 @@ public class CatchService {
     }
 
     public List<CatchInfo> getAllCatchForDayWithReleaseInfoNotNull(LocalDate reportDate) {
-        LocalDateTime startOfDay = reportDate.atStartOfDay();
-        LocalDateTime endOfDay = reportDate.atTime(LocalTime.MAX);
-        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetween(Timestamp.valueOf(startOfDay), Timestamp.valueOf(endOfDay));
+
+        ZoneId halifaxZone = ZoneId.of("America/Halifax");
+        ZonedDateTime startOfDay = reportDate.atStartOfDay(halifaxZone);
+        ZonedDateTime endOfDay = reportDate.atTime(LocalTime.MAX).atZone(halifaxZone);
+        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetween(Timestamp.from(startOfDay.toInstant()), Timestamp.valueOf(endOfDay.toLocalDateTime()));
     }
 
     public List<CatchInfo> getAllCatchForDayWithReleaseInfoNotNullByUser(LocalDate reportDate) {
-        LocalDateTime startOfDay = reportDate.atStartOfDay();
-        LocalDateTime endOfDay = reportDate.atTime(LocalTime.MAX);
+
+        ZoneId halifaxZone = ZoneId.of("America/Halifax");
+        ZonedDateTime startOfDay = reportDate.atStartOfDay(halifaxZone);
+        ZonedDateTime endOfDay = reportDate.atTime(LocalTime.MAX).atZone(halifaxZone);
         User currentUser = userService.getCurrentUser();
-        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetweenAndUserOrReleaseInfo_User(Timestamp.valueOf(startOfDay), Timestamp.valueOf(endOfDay), currentUser);
+        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetweenAndUserOrReleaseInfo_User(Timestamp.from(startOfDay.toInstant()), Timestamp.from(endOfDay.toInstant()), currentUser);
     }
 }
