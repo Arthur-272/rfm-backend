@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -121,15 +119,29 @@ public class CatchService {
     }
 
     public List<CatchInfo> getAllCatchForDayWithReleaseInfoNotNull(LocalDate reportDate) {
-        LocalDateTime startOfDay = reportDate.atStartOfDay();
-        LocalDateTime endOfDay = reportDate.atTime(LocalTime.MAX);
-        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetween(Timestamp.valueOf(startOfDay), Timestamp.valueOf(endOfDay));
+        // Convert start and end of the day to Halifax timezone
+        ZonedDateTime startOfDayInHalifax = reportDate.atStartOfDay(ZoneId.of("America/Halifax"));
+        ZonedDateTime endOfDayInHalifax = reportDate.atTime(LocalTime.MAX).atZone(ZoneId.of("America/Halifax"));
+
+        // Convert to UTC timestamps
+        Timestamp startOfDayUTC = Timestamp.valueOf(startOfDayInHalifax.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        Timestamp endOfDayUTC = Timestamp.valueOf(endOfDayInHalifax.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+
+        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetween(startOfDayUTC, endOfDayUTC);
     }
 
     public List<CatchInfo> getAllCatchForDayWithReleaseInfoNotNullByUser(LocalDate reportDate) {
-        LocalDateTime startOfDay = reportDate.atStartOfDay();
-        LocalDateTime endOfDay = reportDate.atTime(LocalTime.MAX);
+        // Convert start and end of the day to Halifax timezone
+        ZonedDateTime startOfDayInHalifax = reportDate.atStartOfDay(ZoneId.of("America/Halifax"));
+        ZonedDateTime endOfDayInHalifax = reportDate.atTime(LocalTime.MAX).atZone(ZoneId.of("America/Halifax"));
+
+        // Convert to UTC timestamps
+        Timestamp startOfDayUTC = Timestamp.valueOf(startOfDayInHalifax.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        Timestamp endOfDayUTC = Timestamp.valueOf(endOfDayInHalifax.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+
         User currentUser = userService.getCurrentUser();
-        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetweenAndUserOrReleaseInfo_User(Timestamp.valueOf(startOfDay), Timestamp.valueOf(endOfDay), currentUser);
+        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetweenAndUserOrReleaseInfo_User(
+                startOfDayUTC, endOfDayUTC, currentUser
+        );
     }
 }
