@@ -30,17 +30,20 @@ public class CatchService {
     private PropertyService propertyService;
 
     @Autowired
+    private DateService dateService;
+
+    @Autowired
     private UserService userService;
 
 
     public CatchInfo addCatch(CatchInfo catch_Info) {
         Property property = propertyService.findById(catch_Info.getProperty().getId());
-        if(property == null) {
+        if (property == null) {
             throw new IllegalArgumentException("Property not found");
         }
         Vehicle vehicle = null;
         Map<String, Object> map = vehicleService.getVehicleByNumberPlate(catch_Info.getVehicle().getNumberPlate());
-        if(map != null) {
+        if (map != null) {
             vehicle = (Vehicle) vehicleService.getVehicleByNumberPlate(catch_Info.getVehicle().getNumberPlate()).get("vehicle");
             if (property.getAuthorizedVehicles().contains(vehicle)) {
                 throw new IllegalArgumentException("Vehicle is authorized");
@@ -50,11 +53,11 @@ public class CatchService {
                 }
             }
         }
-        if(vehicle == null) {
+        if (vehicle == null) {
             vehicle = vehicleService.addVehicle(catch_Info.getVehicle());
         }
 
-        if(catch_Info.getTimestamp() != null) {
+        if (catch_Info.getTimestamp() != null) {
             Date date = Timestamp.valueOf(catch_Info.getTimestamp().toLocalDateTime());
             catch_Info.setTimestamp(Timestamp.valueOf(date.toString()));
         }
@@ -119,29 +122,14 @@ public class CatchService {
     }
 
     public List<CatchInfo> getAllCatchForDayWithReleaseInfoNotNull(LocalDate reportDate) {
-        // Convert start and end of the day to Halifax timezone
-        ZonedDateTime startOfDayInHalifax = reportDate.atStartOfDay(ZoneId.of("America/Halifax"));
-        ZonedDateTime endOfDayInHalifax = reportDate.atTime(LocalTime.MAX).atZone(ZoneId.of("America/Halifax"));
-
-        // Convert to UTC timestamps
-        Timestamp startOfDayUTC = Timestamp.valueOf(startOfDayInHalifax.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
-        Timestamp endOfDayUTC = Timestamp.valueOf(endOfDayInHalifax.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
-
-        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetween(startOfDayUTC, endOfDayUTC);
+        Timestamp[] range = dateService.getShiftedDayRange(reportDate, ZoneId.of("America/Halifax"), 4);
+        return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetween(range[0], range[1]);
     }
 
     public List<CatchInfo> getAllCatchForDayWithReleaseInfoNotNullByUser(LocalDate reportDate) {
-        // Convert start and end of the day to Halifax timezone
-        ZonedDateTime startOfDayInHalifax = reportDate.atStartOfDay(ZoneId.of("America/Halifax"));
-        ZonedDateTime endOfDayInHalifax = reportDate.atTime(LocalTime.MAX).atZone(ZoneId.of("America/Halifax"));
-
-        // Convert to UTC timestamps
-        Timestamp startOfDayUTC = Timestamp.valueOf(startOfDayInHalifax.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
-        Timestamp endOfDayUTC = Timestamp.valueOf(endOfDayInHalifax.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
-
+        Timestamp[] range = dateService.getShiftedDayRange(reportDate, ZoneId.of("America/Halifax"), 4);
         User currentUser = userService.getCurrentUser();
         return catchRepository.findCatchInfoByReleaseInfoIsNotNullAndReleaseInfo_TimestampBetweenAndUserOrReleaseInfo_User(
-                startOfDayUTC, endOfDayUTC, currentUser
-        );
+                range[0], range[1], currentUser);
     }
 }
